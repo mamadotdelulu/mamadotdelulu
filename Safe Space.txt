@@ -1,0 +1,79 @@
+import json
+import os
+
+# Define the quiz questions and answers
+quiz = [
+    {
+        "question": "How often have you been feeling down, depressed, or hopeless in the last two weeks?",
+        "options": ["Not at all", "Several days", "More than half the days", "Nearly every day"],
+        "scores": [0, 1, 2, 3]
+    },
+    {
+        "question": "How often have you had little interest or pleasure in doing things?",
+        "options": ["Not at all", "Several days", "More than half the days", "Nearly every day"],
+        "scores": [0, 1, 2, 3]
+    },
+    # Add more questions as needed
+]
+
+def save_progress(name, current_index, total_score):
+    progress = {
+        "name": name,
+        "current_index": current_index,
+        "total_score": total_score
+    }
+    with open(f"{name}_progress.json", "w") as file:
+        json.dump(progress, file)
+    print("Your progress has been saved.")
+
+def load_progress(name):
+    if os.path.exists(f"{name}_progress.json"):
+        with open(f"{name}_progress.json", "r") as file:
+            progress = json.load(file)
+        return progress
+    return None
+
+def take_quiz(name, current_index=0, total_score=0):
+    for index in range(current_index, len(quiz)):
+        item = quiz[index]
+        print(item["question"])
+        for i, option in enumerate(item["options"], 1):
+            print(f"{i}. {option}")
+        answer = int(input("Choose an option (1-4): ")) - 1
+        total_score += item["scores"][answer]
+        if index % 2 == 1:
+            print(f"Thank you for sharing, {name}.")
+        save_progress(name, index + 1, total_score)
+    return total_score
+
+def provide_resources(score, name):
+    if score <= 4:
+        print(f"It seems like you're doing okay, {name}, but remember, it's always good to talk to someone if you need to. Your feelings are valid.")
+    elif 5 <= score <= 9:
+        print(f"You might be experiencing some mild symptoms of depression, {name}. Consider reaching out to a counselor or therapist. Talking to someone can really help.")
+    elif 10 <= score <= 14:
+        print(f"It looks like you're experiencing moderate symptoms of depression, {name}. It's important to talk to a mental health professional. They can provide the support you need.")
+    else:
+        print(f"You might be experiencing severe symptoms of depression, {name}. Please seek help from a mental health professional immediately. You don't have to go through this alone.")
+    
+    # Gold Coast mental health resources
+    print("\nHere are some free mental health resources and support services available on the Gold Coast:")
+    print("1. **headspace Southport** - Youth mental health services\n   Address: Level 1, H20 Broadwater, 1/2 Nind Street, Southport, QLD 4215\n   Phone: (07) 5509 5900\n   headspace Southport")
+    print("2. **Gold Coast Student Hub** - Support and networking space for students\n   Address: 43 Nerang Street, Southport, QLD 4215\n   Phone: (07) 5556 6100\n   Gold Coast Student Hub")
+    print("3. **Gold Coast University Hospital** - Comprehensive mental health services\n   Address: 1 Hospital Boulevard, Southport, QLD 4215\n   Phone: 1300 744 284\n   Gold Coast University Hospital")
+    print("4. **Gold Coast Health Mental Health Support** - Various mental health services\n   Gold Coast Health Mental Health Support")
+
+def main():
+    print("Welcome to Safe Space: A Mental Health Quiz for Students")
+    name = input("What's your name? ")
+    progress = load_progress(name)
+    if progress:
+        print(f"Welcome back, {name}! Resuming your quiz from where you left off.")
+        score = take_quiz(name, progress["current_index"], progress["total_score"])
+    else:
+        score = take_quiz(name)
+    print(f"Your total score is: {score}")
+    provide_resources(score, name)
+
+if __name__ == "__main__":
+    main()
